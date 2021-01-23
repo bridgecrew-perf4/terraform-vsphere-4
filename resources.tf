@@ -16,16 +16,30 @@ data "vsphere_resource_pool" "pool" {
   depends_on    = [vsphere_host.host]
 }
 
+data "vsphere_vmfs_disks" "hdd" {
+  host_system_id  = vsphere_host.host.id
+  filter          = "(t10.ATA_____WDC_WD40EFRX2D68WT0N0_________________________WD2DWCC4E0206479)"
+  depends_on      = [vsphere_host.host]
+}
+
 data "vsphere_datastore" "datastore1" {
   name          = "datastore1"
   datacenter_id = vsphere_datacenter.datacenter.moid
   depends_on    = [vsphere_host.host]
 }
 
+resource "vsphere_vmfs_datastore" "datastore2" {
+  name            = "datastore2"
+  host_system_id  = vsphere_host.host.id
+  disks           = [data.vsphere_vmfs_disks.hdd.disks[0]]
+}
+
 resource "vsphere_host_virtual_switch" "nas" {
   name           		= "NAS"
   host_system_id 		= vsphere_host.host.id
   network_adapters 	= ["vmnic3"]
+  active_nics       = []
+  standby_nics      = []
 }
 
 data "vsphere_network" "vm_services" {
