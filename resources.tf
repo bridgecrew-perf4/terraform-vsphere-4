@@ -11,6 +11,7 @@ resource "vsphere_host" "host" {
 }
 
 data "vsphere_resource_pool" "pool" {
+  # Resources is the invisible pool of the ESXI host
   name          = "Resources"
   datacenter_id = vsphere_datacenter.datacenter.moid
   depends_on    = [vsphere_host.host]

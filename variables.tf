@@ -1,15 +1,15 @@
 variable "vsphere_server" {
-  description   = "Hostname or IP of vsphere or vcenter"
+  description   = "Hostname or IP of vCenter"
   default       = ""
 }
 
 variable "vsphere_username" {
-  description   = "Username for vsphere or vcenter, remember SSO domain if vcenter"
+  description   = "Username for vCenter, remember SSO domain"
   default       = ""
 }
 
 variable "vsphere_password" {
-  description   = "Password for vsphere or vcenter"
+  description   = "Password for vCenter"
   default       = ""
 }
 
