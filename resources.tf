@@ -7,7 +7,7 @@ resource "vsphere_host" "host" {
   username    = var.esxi_username
   password    = var.esxi_password
   datacenter  = vsphere_datacenter.datacenter.moid
-  thumbprint  = "30:CB:1D:7B:25:A9:9E:62:8D:EE:6E:2B:4B:9B:84:7A:89:C6:49:19"
+  thumbprint  = var.esxi_thumbprint
 }
 
 data "vsphere_resource_pool" "pool" {
@@ -19,7 +19,7 @@ data "vsphere_resource_pool" "pool" {
 
 data "vsphere_vmfs_disks" "hdd" {
   host_system_id  = vsphere_host.host.id
-  filter          = "(t10.ATA_____WDC_WD40EFRX2D68WT0N0_________________________WD2DWCC4E0206479)"
+  filter          = var.datastore_hdd_id
   depends_on      = [vsphere_host.host]
 }
 
@@ -36,11 +36,18 @@ resource "vsphere_vmfs_datastore" "datastore2" {
 }
 
 resource "vsphere_host_virtual_switch" "nas" {
-  name           		= "NAS"
-  host_system_id 		= vsphere_host.host.id
-  network_adapters 	= ["vmnic3"]
+  name              = "NAS"
+  host_system_id    = vsphere_host.host.id
+  network_adapters  = ["vmnic3"]
   active_nics       = []
   standby_nics      = []
+}
+
+resource "vsphere_host_port_group" "vm_lab" {
+  name                = "VM-Lab"
+  host_system_id      = vsphere_host.host.id
+  virtual_switch_name = "VM"
+  vlan_id							= 50
 }
 
 data "vsphere_network" "vm_services" {
@@ -50,21 +57,29 @@ data "vsphere_network" "vm_services" {
 }
 
 resource "vsphere_virtual_machine" "services_docker1" {
-  name                = "service-docker1"
+  name                = "services-docker1"
   resource_pool_id    = data.vsphere_resource_pool.pool.id
   datastore_id        = data.vsphere_datastore.datastore1.id
-  num_cpus            = 2
-  memory              = 2048
-  guest_id            = "ubuntu64Guest"
-  network_interface {
+  datacenter_id       = vsphere_datacenter.datacenter.moid	
+  host_system_id			= vsphere_host.host.id
+#	wait_for_guest_net_timeout	= 0
+#  wait_for_guest_ip_timeout		= 0
+	network_interface {
     network_id = data.vsphere_network.vm_services.id
   }
-  disk {
-    label = "disk0"
-    size  = 50
-  }
   cdrom {
-    datastore_id = data.vsphere_datastore.datastore1.id
-    path         = "ISO/ubuntu-20.04-live-server-amd64.iso"
+    client_device = true
+  }
+	ovf_deploy {
+    remote_ovf_url    = "https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.ova"
+    disk_provisioning = "thin"
+  }
+  vapp {
+    properties = {
+      hostname    = "services-docker1"
+      password    = "test"
+      public-keys = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDJa28VuIjJF74nsbxy5KsqxulbONGjdi4IwWrW8Rd/+BewVWSg8QD70ChaeS/IoAUzYqQ5GhcjRmiHeXVad2muTJOznQnEkR0qq4PRtSEgLUkwH1OAQWJ8CKWXVFX1ulnN+DawdLXbd5QMdDhzGAxD9TTNCDcgtZrdbySXRt+OvWijw5GAXR5wktqeopZ2IeOfUKDUlqBMWenNPx1cTQI28cEDGiRMTlHy6w9WAw/5YM0PG0r1xFxjGhye8vTBnnis5ANdtJADBg2ilOJ0miKIPqa8aOICfk6sj62aFUCrqVpZN2GqtB6+o+quEz2WhlFrVgc+fS+g+yqem0a3xDSH lheia@DESKTOP-BEKKPGR"
+#      user-data = base64encode(file("cloud-init.yml"))
+    }
   }
 }

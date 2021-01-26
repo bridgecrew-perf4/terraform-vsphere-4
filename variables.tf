@@ -27,3 +27,13 @@ variable "esxi_password" {
   description   = "Password for ESXI"
   default       = ""
 }
+
+variable "esxi_thumbprint" {
+  description   = "Certificate thumbprint for ESXI host, only needed if unsecure"
+  default       = ""
+}
+
+variable "datastore_hdd_id" {
+  description   = "ID physical harddrive"
+  default       = ""
+}

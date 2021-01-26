@@ -1,0 +1,9 @@
+#cloud-config
+hostname: test
+
+users:
+	- name: lheia
+		passwd: test
+		lock_passwd: false 
+		sudo: ALL=(ALL) ALL
+		groups: [sudo]
