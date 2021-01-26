@@ -47,7 +47,7 @@ resource "vsphere_host_port_group" "vm_lab" {
   name                = "VM-Lab"
   host_system_id      = vsphere_host.host.id
   virtual_switch_name = "VM"
-  vlan_id							= 50
+  vlan_id             = 50
 }
 
 data "vsphere_network" "vm_services" {
@@ -63,7 +63,7 @@ resource "vsphere_virtual_machine" "services_docker1" {
   datacenter_id       = vsphere_datacenter.datacenter.moid	
   host_system_id			= vsphere_host.host.id
 #	wait_for_guest_net_timeout	= 0
-#  wait_for_guest_ip_timeout		= 0
+# wait_for_guest_ip_timeout		= 0
 	network_interface {
     network_id = data.vsphere_network.vm_services.id
   }
@@ -78,7 +78,7 @@ resource "vsphere_virtual_machine" "services_docker1" {
     properties = {
       hostname    = "services-docker1"
       password    = "test"
-      public-keys = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDJa28VuIjJF74nsbxy5KsqxulbONGjdi4IwWrW8Rd/+BewVWSg8QD70ChaeS/IoAUzYqQ5GhcjRmiHeXVad2muTJOznQnEkR0qq4PRtSEgLUkwH1OAQWJ8CKWXVFX1ulnN+DawdLXbd5QMdDhzGAxD9TTNCDcgtZrdbySXRt+OvWijw5GAXR5wktqeopZ2IeOfUKDUlqBMWenNPx1cTQI28cEDGiRMTlHy6w9WAw/5YM0PG0r1xFxjGhye8vTBnnis5ANdtJADBg2ilOJ0miKIPqa8aOICfk6sj62aFUCrqVpZN2GqtB6+o+quEz2WhlFrVgc+fS+g+yqem0a3xDSH lheia@DESKTOP-BEKKPGR"
+      public-keys = var.public_key
 #      user-data = base64encode(file("cloud-init.yml"))
     }
   }

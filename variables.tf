@@ -37,3 +37,8 @@ variable "datastore_hdd_id" {
   description   = "ID physical harddrive"
   default       = ""
 }
+
+variable "public_key" {
+  description   = "Public key"
+  default       = ""
+}
